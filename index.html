@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>React UiPass</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <style>
+      .ui-pass input[type="password"] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/jsx">
+
+      var UiPass = React.createClass({
+
+        getInitialState: function () {
+          return {
+            pass: null,
+            uipass: null,
+            sent: false
+          };
+        },
+
+        _onSubmit: function (ev) {
+          ev.preventDefault();
+
+          this.setState({
+            sent: true
+          });
+        },
+
+        _onChange: function (ev) {
+          this.setState({
+            pass: this._getPassword(ev.target.value),
+            uipass: this._getUiPass(ev.target.value)
+          });
+        },
+
+        _getPassword: function (value) {
+          var char = value.charAt(value.length-1)
+            , newState = this.state.pass + char;
+
+          return (this.state.pass) ? newState : char;
+        },
+
+        _getUiPass: function (value) {
+          var maskPass = [];
+
+          if (value.length > 1) {
+            for (var i=0, len=value.length; i < len-1; i++) {
+              maskPass.push('-');
+            }
+          }
+
+          maskPass.push(value.charAt(value.length-1));
+
+          setTimeout(function () {
+            // maskPass[maskPass.length-1] = '-';
+            this._changeLastChar();
+          }.bind(this), 300);
+
+          return maskPass.join('');
+        },
+
+        _changeLastChar: function () {
+          var value = this.state.uipass.slice(0, -1) + '-';
+
+          this.setState({
+            uipass: value
+          });
+        },
+
+        render: function() {
+          return (
+            <div>
+              <form onSubmit={this._onSubmit}>
+                <div className="ui-pass">
+                  <input type="password" value={this.state.pass} />
+                  <input type="text" value={this.state.uipass} onChange={this._onChange} />
+                </div>
+                <input type="submit" />
+
+                {
+                  this.state.sent && <p>
+                      sent password:
+                      <strong> {this.state.pass}</strong>
+                    </p>
+                }
+              </form>
+            </div>
+          );
+        }
+      });
+      React.render(
+        <UiPass />,
+        document.getElementById('content')
+      );
+
+    </script>
+  </body>
+</html>
